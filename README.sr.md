@@ -168,6 +168,7 @@ opencode-voice-local/
 ├── install.sh
 ├── publish.sh           # objavljivanje na GitHub jednom komandom
 ├── LICENSE
+├── TODO.md
 └── README.md
 ```
 

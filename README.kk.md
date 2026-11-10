@@ -172,6 +172,7 @@ opencode-voice-local/
 ├── install.sh
 ├── publish.sh           # GitHub-қа бір командамен жариялау
 ├── LICENSE
+├── TODO.md
 └── README.md
 ```
 

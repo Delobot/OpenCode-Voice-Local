@@ -175,6 +175,7 @@ opencode-voice-local/
 ├── install.sh
 ├── publish.sh           # einmaliger GitHub-Veröffentlicher
 ├── LICENSE
+├── TODO.md
 └── README.md
 ```
 
