@@ -151,17 +151,31 @@ def synth_silero(voice_id: str, text: str, speed: float, out: str) -> None:
 
         if _silero_model is None:
             _silero_model = get_model()
-        audio = _silero_model.apply_tts(text=text, speaker=voice_id, sample_rate=48000)
-        if speed != 1.0 and speed > 0:
-            n = int(len(audio) / speed)
-            idx = np.linspace(0, len(audio) - 1, n)
-            audio = torch.from_numpy(np.interp(idx, np.arange(len(audio)), audio.numpy()))
-        samples = (audio.numpy() * 32767).astype("int16")
+
         import wave as wavmod
+
+        # Split long texts into sentence chunks: Silero struggles (slow or
+        # broken prosody) with strings much longer than ~500-800 chars, and
+        # the player may time out while it grinds through a huge blob.
+        chunks = [c for c in _split_sentences(text, 500) if c.strip()]
+        sr = 48000
+        pieces = []
+        for c in chunks:
+            a = _silero_model.apply_tts(text=c, speaker=voice_id, sample_rate=sr)
+            if speed != 1.0 and speed > 0:
+                n = int(len(a) / speed)
+                idx = np.linspace(0, len(a) - 1, n)
+                a = torch.from_numpy(np.interp(idx, np.arange(len(a)), a.numpy()))
+            pieces.append(a)
+            # a short pause between sentences keeps prosody natural
+            pieces.append(torch.zeros(int(sr * 0.25)))
+
+        audio = torch.cat(pieces) if len(pieces) > 1 else pieces[0]
+        samples = (audio.numpy() * 32767).astype("int16")
         with wavmod.open(out, "wb") as w:
             w.setnchannels(1)
             w.setsampwidth(2)
-            w.setframerate(48000)
+            w.setframerate(sr)
             w.writeframes(samples.tobytes())
         return
     except ImportError:
@@ -179,6 +193,37 @@ def synth_silero(voice_id: str, text: str, speed: float, out: str) -> None:
 
 
 _silero_model = None
+
+
+def _split_sentences(text: str, limit: int) -> list:
+    """Split text into chunks <= `limit` chars, cutting at sentence ends."""
+    text = text.strip()
+    if len(text) <= limit:
+        return [text]
+    import re
+
+    parts = re.split(r"(?<=[.!?…])\s+", text)
+    chunks, cur = [], ""
+    for p in parts:
+        # a single monster "sentence" (code block, URL list): hard-split it
+        while len(p) > limit:
+            cut = p.rfind(" ", 0, limit)
+            if cut <= 0:
+                cut = limit
+            if cur:
+                chunks.append(cur.strip())
+                cur = ""
+            chunks.append(p[:cut].strip())
+            p = p[cut:].strip()
+        if len(cur) + len(p) + 1 <= limit:
+            cur = f"{cur} {p}".strip()
+        else:
+            if cur:
+                chunks.append(cur.strip())
+            cur = p
+    if cur.strip():
+        chunks.append(cur.strip())
+    return [c for c in chunks if c]
 
 
 def synth(engine: str, voice_id: str, text: str, speed: float, out: str) -> None:
