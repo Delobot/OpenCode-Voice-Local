@@ -1,21 +1,24 @@
 # OpenCode Voice Local
 
-Локальная (полностью офлайн) озвучка ответов для **OpenCode Desktop** с русскими голосами,
-страницей настроек и компактным плеером.
+**Languages:** English · [Русский](README.ru.md) · [Deutsch](README.de.md) · [Қазақша](README.kk.md)
 
-Проект состоит из двух частей:
+Fully offline text-to-speech for **OpenCode Desktop**: nine Russian voices, a settings
+page for managing them, and a compact floating player.
 
-- **voice-hub** — локальный HTTP-сервер с OpenAI-совместимым `POST /v1/audio/speech`,
-  оборачивающий два движка синтеза: **Silero v5_ru** (torch) и **Piper** (onnx);
-- **GUI-плагин** — страница настроек в OpenCode, где голоса можно выбирать, слушать,
-  скачивать и удалять, плюс переопределения для плавающего плеера (компактный вид,
-  перетаскивание, прилипание к углам).
+The project has two parts:
 
-Ничего не уходит в интернет: текст и аудио остаются на этой машине.
+- **voice-hub** — a local HTTP server exposing an OpenAI-compatible
+  `POST /v1/audio/speech`, wrapping two synthesis engines: **Silero v5_ru** (torch)
+  and **Piper** (onnx);
+- **GUI plugin** — a settings page inside OpenCode to select, preview, download and
+  delete voices, plus overrides for the floating player (compact look, drag,
+  snap-to-corner).
+
+Nothing ever leaves your machine: both the text and the audio stay local.
 
 ```
 OpenCode Desktop
- ├─ TTS-движок (engine=openai) ──POST /v1/audio/speech──┐
+ ├─ TTS engine (engine=openai) ──POST /v1/audio/speech──┐
  └─ opencode-voice-local-plugin ──/voices/*─────────────┤
                                                         ▼
                                              voice-hub 127.0.0.1:8095
@@ -23,66 +26,68 @@ OpenCode Desktop
                                               └─ Piper (onnx, ru_RU)
 ```
 
-## Возможности
+## Features
 
-- **9 русских голосов**: 5 встроенных Silero + 4 скачиваемых Piper.
-- **Страница настроек** «Голоса (локальный TTS)» в общем дизайне приложения
-  (дизайн-токены `--v2-*`, светлая/тёмная тема).
-- **Прослушивание** голоса прямо со страницы (WAV-образец).
-- **Скачивание/удаление** Piper-голосов по кнопке, без ручных команд.
-- **Голос по умолчанию** задаётся на странице и всегда применяется при синтезе.
-- **Компактный плеер**: без осциллограммы и таймера, перетаскивается мышью,
-  прилипает к ближайшему углу, позиция запоминается.
-- **OpenAI-совместимый API**: подходит любой клиент, умеющий `/v1/audio/speech`.
+- **Nine Russian voices**: 5 built-in Silero + 4 downloadable Piper.
+- **Settings page** — "Голоса (локальный TTS)" — matching the app's own design
+  language (design tokens `--v2-*`, light and dark themes).
+- **Preview** a voice straight from the page (a short WAV sample).
+- **Download / delete** Piper voices with one button, no manual commands.
+- **Default voice** is chosen on the page and is always used for synthesis.
+- **Compact player**: no oscilloscope or timer, drag it anywhere, it snaps to the
+  nearest corner and remembers its position.
+- **OpenAI-compatible API**: any client that speaks `/v1/audio/speech` works.
 
-## Голоса
+## Voices
 
-| id | Движок | Описание |
+| id | Engine | Description |
 | --- | --- | --- |
-| `eugene` | Silero | мужской, глубокий (по умолчанию) |
-| `aidar` | Silero | мужской, нейтральный |
-| `baya` | Silero | мужской, мягкий |
-| `kseniya` | Silero | женский, деловой |
-| `xenia` | Silero | женский, дружелюбный |
-| `ru_RU-denis-medium` | Piper | мужской; ~63 МБ, скачивается |
-| `ru_RU-dmitri-medium` | Piper | мужской; ~63 МБ, скачивается |
-| `ru_RU-irina-medium` | Piper | женский; ~63 МБ, скачивается |
-| `ru_RU-ruslan-medium` | Piper | мужской; ~63 МБ, скачивается |
+| `eugene` | Silero | male, deep (default) |
+| `aidar` | Silero | male, neutral |
+| `baya` | Silero | male, soft |
+| `kseniya` | Silero | female, businesslike |
+| `xenia` | Silero | female, friendly |
+| `ru_RU-denis-medium` | Piper | male; ~63 MB, downloadable |
+| `ru_RU-dmitri-medium` | Piper | male; ~63 MB, downloadable |
+| `ru_RU-irina-medium` | Piper | female; ~63 MB, downloadable |
+| `ru_RU-ruslan-medium` | Piper | male; ~63 MB, downloadable |
 
-Silero-голоса входят в модель и не требуют скачивания. Piper-голоса качаются с
-HuggingFace (`rhasspy/piper-voices`) и лежат в `~/.local/share/piper-voices/`.
+Silero voices ship with the model and need no download. Piper voices are fetched
+from HuggingFace (`rhasspy/piper-voices`) and stored in `~/.local/share/piper-voices/`.
 
-## Требования
+## Requirements
 
-- Linux (проверено на Ubuntu 26.04, Wayland, KDE).
+- Linux (tested on Ubuntu 26.04, Wayland, KDE).
 - OpenCode Desktop 2.2.x.
 - Python 3.10+.
-- ~1.5 ГБ на диске (torch CPU + модель Silero + голоса Piper по желанию).
-- Интернет — **только** при установке и при первом синтезе Silero
-  (torch.hub скачивает модель `snakers4/silero-models`).
+- ~1.5 GB on disk (CPU torch + Silero model + optional Piper voices).
+- Internet **only** during installation and on the first Silero synthesis
+  (torch.hub downloads the `snakers4/silero-models` model).
 
-## Установка
+## Installation
 
 ```bash
-git clone https://github.com/Delobot/opencode-voice-local.git
-cd opencode-voice-local
+git clone https://github.com/Delobot/OpenCode-Voice-Local.git
+cd OpenCode-Voice-Local
 ./install.sh
 ```
 
-Скрипт:
+The script:
 
-1. копирует сервер в `~/.config/opencode/piper-tts/server.py` и
-   `~/.config/opencode/silero-tts/synth.py` (пути ожидаются сервером);
-2. создаёт venv `~/.config/opencode/silero-tts/venv` с `torch` (CPU), `numpy`, `scipy`, `silero`;
-3. ставит `piper-tts` в `~/.local/bin/piper` через `uv`, `pipx` или `pip --user`;
-4. устанавливает и запускает systemd-юнит `voice-hub.service`;
-5. копирует GUI-плагин в `~/.config/opencode/voice-local-plugin`.
+1. copies the server to `~/.config/opencode/piper-tts/server.py` and
+   `~/.config/opencode/silero-tts/synth.py` (the paths the server expects);
+2. creates the venv `~/.config/opencode/silero-tts/venv` with `torch` (CPU),
+   `numpy`, `scipy`, `silero`;
+3. installs the `piper-tts` CLI into `~/.local/bin/piper` via `uv`, `pipx` or
+   `pip --user`;
+4. installs and starts the systemd user unit `voice-hub.service`;
+5. copies the GUI plugin to `~/.config/opencode/voice-local-plugin`.
 
-Затем зарегистрируйте плагин и перезапустите OpenCode — см. ниже.
+Then register the plugin and restart OpenCode — see below.
 
-### Регистрация плагина
+### Registering the plugin
 
-В `~/.config/opencode/opencode.jsonc`:
+In `~/.config/opencode/opencode.jsonc`:
 
 ```jsonc
 {
@@ -93,54 +98,55 @@ cd opencode-voice-local
 }
 ```
 
-`opencode-plugin-voice` (Nakamura) даёт сам механизм озвучки; наш плагин добавляет
-страницу настроек и оформление плеера. Если вы используете другой TTS-плагин,
-достаточно указать ему `apiUrl` на voice-hub.
+`opencode-plugin-voice` (Nakamura) provides the speech mechanism itself; our plugin
+adds the settings page and the player styling. If you use a different TTS plugin,
+it is enough to point its `apiUrl` at voice-hub.
 
-### Настройка TTS-движка
+### Configuring the TTS engine
 
-Движок должен ходить на локальный сервер:
+The engine must talk to the local server:
 
 ```jsonc
-// настройки плагина озвучки (Nakamura: engine "openai")
+// TTS plugin settings (Nakamura: engine "openai")
 {
   "engine": "openai",
   "apiUrl": "http://127.0.0.1:8095",
   "apiModel": "voice-hub",
-  "apiVoice": "eugene",   // игнорируется: сервер использует голос по умолчанию
+  "apiVoice": "eugene",   // ignored: the server uses the default voice
   "autoSpeak": true
 }
 ```
 
-Сервер намеренно игнорирует `voice` из запроса: единственный источник истины —
-голос, выбранный на странице настроек (сохраняется в
+The server deliberately ignores `voice` from the request: the single source of
+truth is the voice selected on the settings page (stored in
 `~/.config/opencode/piper-tts/config.json`).
 
-## Использование
+## Usage
 
-1. **Настройки → Голоса (локальный TTS)** — список голосов.
-2. «Выбрать» — сделать голос голосом по умолчанию.
-3. «Прослушать» — короткий образец (первый запуск ~10 с: импорт torch).
-4. «Скачать» / «Удалить» — управление Piper-голосами.
-5. Запустите озвучку ответа — появится компактный плеер (пауза/продолжить, ✕ — отмена).
-   Его можно перетащить за пустое место; при отпускании он прилипает к ближайшему углу.
+1. **Settings → Голоса (локальный TTS)** — the voice list.
+2. **Select** makes a voice the default one.
+3. **Preview** plays a short sample (the first run takes ~10 s: torch import).
+4. **Download** / **Delete** manage Piper voices.
+5. Trigger speech for an answer — a compact player appears (pause/resume, ✕ to
+   cancel). Drag it by any empty spot; on release it snaps to the nearest corner.
 
 ## HTTP API
 
-Сервер слушает `127.0.0.1:8095` (порт меняется константой `PORT` в `server/server.py`).
+The server listens on `127.0.0.1:8095` (change the `PORT` constant in
+`server/server.py` to move it).
 
-| Метод | Путь | Тело / параметры | Ответ |
+| Method | Path | Body / query | Response |
 | --- | --- | --- | --- |
 | GET | `/health` | — | `{"health":"ok","default_voice":"...","silero_ready":true}` |
-| GET | `/v1/models` | — | список моделей в стиле OpenAI |
+| GET | `/v1/models` | — | OpenAI-style model list |
 | GET | `/voices` | — | `{"voices":[...],"default_voice":"..."}` |
 | POST | `/voices/select` | `{"voice":"eugene"}` | `{"ok":true,"default_voice":"eugene"}` |
 | POST | `/voices/download` | `{"voice":"ru_RU-irina-medium"}` | `{"ok":true}` |
 | POST | `/voices/delete` | `{"voice":"ru_RU-irina-medium"}` | `{"ok":true}` |
 | GET | `/voices/preview?voice=eugene` | — | `audio/wav` |
-| POST | `/v1/audio/speech` | `{"input":"текст","speed":1.0}` | `audio/wav` |
+| POST | `/v1/audio/speech` | `{"input":"text","speed":1.0}` | `audio/wav` |
 
-Пример:
+Example:
 
 ```bash
 curl -s -X POST http://127.0.0.1:8095/v1/audio/speech \
@@ -149,37 +155,38 @@ curl -s -X POST http://127.0.0.1:8095/v1/audio/speech \
   -o speech.wav
 ```
 
-Silero отдаёт 48 кГц, Piper — 22.05 кГц; оба — mono PCM 16 бит.
+Silero outputs 48 kHz, Piper 22.05 kHz; both are mono 16-bit PCM.
 
-## Структура
+## Layout
 
 ```
 opencode-voice-local/
 ├── server/
-│   ├── server.py        # voice-hub: HTTP-сервер, каталог голосов, конфиг
-│   └── synth.py         # хелпер Silero (stdin → WAV, --speaker/--speed/--out)
+│   ├── server.py        # voice-hub: HTTP server, voice catalog, config
+│   └── synth.py         # Silero helper (stdin → WAV, --speaker/--speed/--out)
 ├── systemd/
 │   └── voice-hub.service
 ├── plugin/
-│   ├── package.json     # экспорт "./gui-experimental" → gui.cjs
-│   └── gui.cjs          # страница настроек + правки плеера
+│   ├── package.json     # exports "./gui-experimental" → gui.cjs
+│   └── gui.cjs          # settings page + player tweaks
 ├── install.sh
+├── publish.sh           # one-shot GitHub publisher
 ├── LICENSE
 └── README.md
 ```
 
-## Диагностика
+## Troubleshooting
 
-| Симптом | Что проверить |
+| Symptom | What to check |
 | --- | --- |
-| `Сервер голосов недоступен` на странице | `systemctl --user status voice-hub`, `curl 127.0.0.1:8095/health` |
-| Первое прослушивание долгое (~10 с) | нормально: импорт torch и загрузка модели в память |
-| `voice model missing on disk` | скачайте голос кнопкой «Скачать» или выберите Silero-голос |
-| Порт занят | измените `PORT` в `server/server.py` и `apiUrl` в настройках движка |
-| Страница настроек не появилась | `~/.config/ai.opencode.desktop/logs/*/renderer.log`, строки `[plugin]` |
+| "Сервер голосов недоступен" on the page | `systemctl --user status voice-hub`, `curl 127.0.0.1:8095/health` |
+| First preview is slow (~10 s) | expected: torch import and model load |
+| `voice model missing on disk` | download the voice with the Download button, or pick a Silero voice |
+| Port already in use | change `PORT` in `server/server.py` and `apiUrl` in the engine settings |
+| Settings page missing | `~/.config/ai.opencode.desktop/logs/*/renderer.log`, lines with `[plugin]` |
 
-Логи сервера: `journalctl --user -u voice-hub -f`.
+Server logs: `journalctl --user -u voice-hub -f`.
 
-## Лицензия
+## License
 
-MIT — см. [LICENSE](LICENSE).
+MIT — see [LICENSE](LICENSE).
