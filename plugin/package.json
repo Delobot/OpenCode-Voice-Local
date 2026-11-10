@@ -1,0 +1,13 @@
+{
+  "name": "opencode-voice-local-plugin",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "OpenCode Voice Local: settings page for the local voice-hub TTS server (Russian voices: select, preview, download, delete) plus compact draggable player.",
+  "exports": {
+    "./gui-experimental": "./gui.cjs"
+  },
+  "files": [
+    "gui.cjs"
+  ]
+}

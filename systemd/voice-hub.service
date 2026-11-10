@@ -1,0 +1,11 @@
+[Unit]
+Description=OpenCode Voice Local — local TTS hub (OpenAI-compatible /v1/audio/speech)
+After=default.target
+
+[Service]
+ExecStart=%h/.config/opencode/silero-tts/venv/bin/python %h/.config/opencode/piper-tts/server.py
+Restart=on-failure
+RestartSec=3
+
+[Install]
+WantedBy=default.target
